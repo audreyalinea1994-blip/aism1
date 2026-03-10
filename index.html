@@ -1,0 +1,797 @@
+<!doctype html>
+<html lang="en" class="h-full">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AIS Internal Controls &amp; Security</title>
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <script src="/_sdk/element_sdk.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet">
+  <style>
+    * { font-family: 'Inter', sans-serif; }
+    h1, h2, h3, .heading { font-family: 'Space Grotesk', sans-serif; }
+    
+    .gradient-bg {
+      background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
+    }
+    
+    .card-glow {
+      box-shadow: 0 0 40px rgba(59, 130, 246, 0.1);
+    }
+    
+    .nav-item {
+      transition: all 0.3s ease;
+    }
+    
+    .nav-item:hover, .nav-item.active {
+      background: rgba(59, 130, 246, 0.2);
+      border-left-color: #3b82f6;
+    }
+    
+    .content-section {
+      animation: fadeIn 0.5s ease-out;
+    }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .quiz-option {
+      transition: all 0.2s ease;
+    }
+    
+    .quiz-option:hover:not(.selected):not(.correct):not(.incorrect) {
+      border-color: #3b82f6;
+      background: rgba(59, 130, 246, 0.1);
+    }
+    
+    .quiz-option.selected {
+      border-color: #3b82f6;
+      background: rgba(59, 130, 246, 0.2);
+    }
+    
+    .quiz-option.correct {
+      border-color: #22c55e;
+      background: rgba(34, 197, 94, 0.2);
+    }
+    
+    .quiz-option.incorrect {
+      border-color: #ef4444;
+      background: rgba(239, 68, 68, 0.2);
+    }
+    
+    .icon-box {
+      background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+    }
+    
+    .progress-bar {
+      transition: width 0.5s ease;
+    }
+    
+    .case-card {
+      border: 1px solid rgba(148, 163, 184, 0.2);
+      transition: all 0.3s ease;
+    }
+    
+    .case-card:hover {
+      border-color: rgba(59, 130, 246, 0.5);
+      transform: translateY(-2px);
+    }
+    
+    .textarea-case {
+      background: rgba(30, 41, 59, 0.5);
+      border: 1px solid rgba(148, 163, 184, 0.3);
+    }
+    
+    .textarea-case:focus {
+      outline: none;
+      border-color: #3b82f6;
+    }
+  </style>
+  <style>body { box-sizing: border-box; }</style>
+  <script src="/_sdk/data_sdk.js" type="text/javascript"></script>
+ </head>
+ <body class="h-full gradient-bg text-slate-200 overflow-auto">
+  <div class="h-full w-full flex flex-col lg:flex-row"><!-- Sidebar Navigation -->
+   <nav class="w-full lg:w-72 bg-slate-900/80 border-b lg:border-b-0 lg:border-r border-slate-700/50 flex-shrink-0">
+    <div class="p-6">
+     <div class="flex items-center gap-3 mb-2">
+      <div class="icon-box w-10 h-10 rounded-lg flex items-center justify-center">
+       <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+       </svg>
+      </div>
+      <div>
+       <p id="week-badge" class="text-xs text-blue-400 font-medium">Week 6</p>
+       <h1 id="main-title" class="heading text-lg font-bold text-white">AIS Controls</h1>
+      </div>
+     </div>
+    </div><!-- Progress -->
+    <div class="px-6 mb-6">
+     <div class="flex justify-between text-xs text-slate-400 mb-2"><span>Progress</span> <span id="progress-text">0%</span>
+     </div>
+     <div class="h-2 bg-slate-700 rounded-full overflow-hidden">
+      <div id="progress-bar" class="progress-bar h-full bg-gradient-to-r from-blue-500 to-cyan-400 rounded-full" style="width: 0%"></div>
+     </div>
+    </div><!-- Navigation Items -->
+    <div class="px-3 pb-6 flex lg:flex-col gap-1 overflow-x-auto lg:overflow-x-visible"><button onclick="showSection('overview')" class="nav-item w-full text-left px-4 py-3 rounded-lg border-l-4 border-transparent flex items-center gap-3 text-sm active" data-section="overview"> <span class="text-lg">📋</span> <span class="whitespace-nowrap">Overview</span> </button> <button onclick="showSection('framework')" class="nav-item w-full text-left px-4 py-3 rounded-lg border-l-4 border-transparent flex items-center gap-3 text-sm" data-section="framework"> <span class="text-lg">🏗️</span> <span class="whitespace-nowrap">Control Framework</span> </button> <button onclick="showSection('risk')" class="nav-item w-full text-left px-4 py-3 rounded-lg border-l-4 border-transparent flex items-center gap-3 text-sm" data-section="risk"> <span class="text-lg">⚠️</span> <span class="whitespace-nowrap">Risk Assessment</span> </button> <button onclick="showSection('it-controls')" class="nav-item w-full text-left px-4 py-3 rounded-lg border-l-4 border-transparent flex items-center gap-3 text-sm" data-section="it-controls"> <span class="text-lg">💻</span> <span class="whitespace-nowrap">IT Controls</span> </button> <button onclick="showSection('fraud')" class="nav-item w-full text-left px-4 py-3 rounded-lg border-l-4 border-transparent flex items-center gap-3 text-sm" data-section="fraud"> <span class="text-lg">🔒</span> <span class="whitespace-nowrap">Fraud Prevention</span> </button> <button onclick="showSection('case-study')" class="nav-item w-full text-left px-4 py-3 rounded-lg border-l-4 border-transparent flex items-center gap-3 text-sm" data-section="case-study"> <span class="text-lg">📚</span> <span class="whitespace-nowrap">Case Study</span> </button> <button onclick="showSection('quiz')" class="nav-item w-full text-left px-4 py-3 rounded-lg border-l-4 border-transparent flex items-center gap-3 text-sm" data-section="quiz"> <span class="text-lg">✅</span> <span class="whitespace-nowrap">Quiz</span> </button>
+    </div>
+   </nav><!-- Main Content Area -->
+   <main class="flex-1 overflow-auto p-4 lg:p-8">
+    <div class="max-w-4xl mx-auto"><!-- Overview Section -->
+     <section id="section-overview" class="content-section">
+      <div class="bg-slate-800/50 rounded-2xl p-6 lg:p-8 card-glow border border-slate-700/50">
+       <h2 class="heading text-2xl lg:text-3xl font-bold text-white mb-4">AIS Internal Controls &amp; Security</h2>
+       <p class="text-slate-300 mb-6 leading-relaxed">Internal controls are the backbone of reliable accounting information systems. This lesson explores how organizations protect their financial data, prevent fraud, and ensure the integrity of their accounting processes.</p>
+       <div class="grid md:grid-cols-2 gap-4 mb-8">
+        <div class="bg-slate-700/30 rounded-xl p-5 border border-slate-600/30">
+         <h3 class="heading font-semibold text-blue-400 mb-3 flex items-center gap-2"><span>🎯</span> Learning Outcomes</h3>
+         <ul class="space-y-2 text-sm text-slate-300">
+          <li class="flex items-start gap-2"><span class="text-green-400 mt-0.5">✔</span> <span>Evaluate AIS security controls</span></li>
+          <li class="flex items-start gap-2"><span class="text-green-400 mt-0.5">✔</span> <span>Identify system risks</span></li>
+         </ul>
+        </div>
+        <div class="bg-slate-700/30 rounded-xl p-5 border border-slate-600/30">
+         <h3 class="heading font-semibold text-cyan-400 mb-3 flex items-center gap-2"><span>📖</span> Topics Covered</h3>
+         <ul class="space-y-2 text-sm text-slate-300">
+          <li>• Internal control framework</li>
+          <li>• Risk assessment</li>
+          <li>• IT controls in AIS</li>
+          <li>• Fraud prevention</li>
+         </ul>
+        </div>
+       </div><button onclick="showSection('framework')" class="bg-blue-600 hover:bg-blue-700 text-white font-medium px-6 py-3 rounded-xl transition-all flex items-center gap-2"> Start Learning 
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+        </svg></button>
+      </div>
+     </section><!-- Internal Control Framework Section -->
+     <section id="section-framework" class="content-section hidden">
+      <div class="bg-slate-800/50 rounded-2xl p-6 lg:p-8 card-glow border border-slate-700/50">
+       <div class="flex items-center gap-3 mb-6"><span class="text-3xl">🏗️</span>
+        <h2 class="heading text-2xl font-bold text-white">Internal Control Framework</h2>
+       </div>
+       <div class="bg-gradient-to-r from-blue-900/30 to-cyan-900/30 rounded-xl p-5 mb-6 border border-blue-500/20">
+        <p class="text-slate-200"><strong class="text-blue-400">Definition:</strong> Internal controls are policies, procedures, and mechanisms designed to safeguard assets, ensure accurate financial reporting, promote operational efficiency, and ensure compliance with regulations.</p>
+       </div>
+       <h3 class="heading text-xl font-semibold text-white mb-4">COSO Framework Components</h3>
+       <p class="text-slate-400 text-sm mb-4">The Committee of Sponsoring Organizations (COSO) framework is the gold standard for internal control design.</p>
+       <div class="space-y-3 mb-8">
+        <div class="bg-slate-700/40 rounded-xl p-4 border-l-4 border-red-500">
+         <h4 class="font-semibold text-red-400 mb-1">1. Control Environment</h4>
+         <p class="text-sm text-slate-300">The foundation - includes integrity, ethical values, and competence of personnel. Sets the "tone at the top."</p>
+        </div>
+        <div class="bg-slate-700/40 rounded-xl p-4 border-l-4 border-orange-500">
+         <h4 class="font-semibold text-orange-400 mb-1">2. Risk Assessment</h4>
+         <p class="text-sm text-slate-300">Identifying and analyzing risks that could prevent achieving objectives. Includes fraud risk assessment.</p>
+        </div>
+        <div class="bg-slate-700/40 rounded-xl p-4 border-l-4 border-yellow-500">
+         <h4 class="font-semibold text-yellow-400 mb-1">3. Control Activities</h4>
+         <p class="text-sm text-slate-300">Actions taken to address risks - authorizations, approvals, verifications, reconciliations, and segregation of duties.</p>
+        </div>
+        <div class="bg-slate-700/40 rounded-xl p-4 border-l-4 border-green-500">
+         <h4 class="font-semibold text-green-400 mb-1">4. Information &amp; Communication</h4>
+         <p class="text-sm text-slate-300">Relevant information must be captured and communicated in a timely manner to enable people to carry out their responsibilities.</p>
+        </div>
+        <div class="bg-slate-700/40 rounded-xl p-4 border-l-4 border-blue-500">
+         <h4 class="font-semibold text-blue-400 mb-1">5. Monitoring Activities</h4>
+         <p class="text-sm text-slate-300">Ongoing evaluations, separate evaluations, or a combination to ascertain whether controls are present and functioning.</p>
+        </div>
+       </div>
+       <div class="flex justify-between"><button onclick="showSection('overview')" class="text-slate-400 hover:text-white flex items-center gap-2 transition-colors">
+         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+         </svg> Previous </button> <button onclick="showSection('risk')" class="bg-blue-600 hover:bg-blue-700 text-white font-medium px-5 py-2 rounded-lg transition-all flex items-center gap-2"> Next: Risk Assessment 
+         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+         </svg></button>
+       </div>
+      </div>
+     </section><!-- Risk Assessment Section -->
+     <section id="section-risk" class="content-section hidden">
+      <div class="bg-slate-800/50 rounded-2xl p-6 lg:p-8 card-glow border border-slate-700/50">
+       <div class="flex items-center gap-3 mb-6"><span class="text-3xl">⚠️</span>
+        <h2 class="heading text-2xl font-bold text-white">Risk Assessment in AIS</h2>
+       </div>
+       <p class="text-slate-300 mb-6">Risk assessment involves identifying potential threats to the AIS and evaluating their likelihood and impact. This process helps organizations prioritize control implementation.</p>
+       <h3 class="heading text-lg font-semibold text-white mb-4">Risk Assessment Process</h3>
+       <div class="grid md:grid-cols-2 gap-4 mb-6">
+        <div class="bg-slate-700/40 rounded-xl p-5">
+         <div class="w-12 h-12 bg-purple-500/20 rounded-xl flex items-center justify-center mb-3"><span class="text-2xl">🔍</span>
+         </div>
+         <h4 class="font-semibold text-purple-400 mb-2">1. Identify Risks</h4>
+         <ul class="text-sm text-slate-300 space-y-1">
+          <li>• Data breaches</li>
+          <li>• Unauthorized access</li>
+          <li>• System failures</li>
+          <li>• Human errors</li>
+         </ul>
+        </div>
+        <div class="bg-slate-700/40 rounded-xl p-5">
+         <div class="w-12 h-12 bg-pink-500/20 rounded-xl flex items-center justify-center mb-3"><span class="text-2xl">📊</span>
+         </div>
+         <h4 class="font-semibold text-pink-400 mb-2">2. Analyze Risks</h4>
+         <ul class="text-sm text-slate-300 space-y-1">
+          <li>• Likelihood assessment</li>
+          <li>• Impact evaluation</li>
+          <li>• Vulnerability analysis</li>
+          <li>• Threat modeling</li>
+         </ul>
+        </div>
+        <div class="bg-slate-700/40 rounded-xl p-5">
+         <div class="w-12 h-12 bg-amber-500/20 rounded-xl flex items-center justify-center mb-3"><span class="text-2xl">⚖️</span>
+         </div>
+         <h4 class="font-semibold text-amber-400 mb-2">3. Evaluate Risks</h4>
+         <ul class="text-sm text-slate-300 space-y-1">
+          <li>• Risk prioritization</li>
+          <li>• Cost-benefit analysis</li>
+          <li>• Risk tolerance levels</li>
+          <li>• Residual risk acceptance</li>
+         </ul>
+        </div>
+        <div class="bg-slate-700/40 rounded-xl p-5">
+         <div class="w-12 h-12 bg-emerald-500/20 rounded-xl flex items-center justify-center mb-3"><span class="text-2xl">🛡️</span>
+         </div>
+         <h4 class="font-semibold text-emerald-400 mb-2">4. Treat Risks</h4>
+         <ul class="text-sm text-slate-300 space-y-1">
+          <li>• Avoid the risk</li>
+          <li>• Transfer the risk</li>
+          <li>• Mitigate the risk</li>
+          <li>• Accept the risk</li>
+         </ul>
+        </div>
+       </div>
+       <div class="bg-amber-900/20 border border-amber-500/30 rounded-xl p-4 mb-6">
+        <h4 class="font-semibold text-amber-400 mb-2 flex items-center gap-2"><span>💡</span> Risk Matrix</h4>
+        <p class="text-sm text-slate-300">Organizations often use a risk matrix plotting <strong>Likelihood</strong> (x-axis) against <strong>Impact</strong> (y-axis) to visualize and prioritize risks. High likelihood + High impact = Critical priority.</p>
+       </div>
+       <div class="flex justify-between"><button onclick="showSection('framework')" class="text-slate-400 hover:text-white flex items-center gap-2 transition-colors">
+         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+         </svg> Previous </button> <button onclick="showSection('it-controls')" class="bg-blue-600 hover:bg-blue-700 text-white font-medium px-5 py-2 rounded-lg transition-all flex items-center gap-2"> Next: IT Controls 
+         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+         </svg></button>
+       </div>
+      </div>
+     </section><!-- IT Controls Section -->
+     <section id="section-it-controls" class="content-section hidden">
+      <div class="bg-slate-800/50 rounded-2xl p-6 lg:p-8 card-glow border border-slate-700/50">
+       <div class="flex items-center gap-3 mb-6"><span class="text-3xl">💻</span>
+        <h2 class="heading text-2xl font-bold text-white">IT Controls in AIS</h2>
+       </div>
+       <p class="text-slate-300 mb-6">IT controls are specific controls related to the technology infrastructure supporting the AIS. They are divided into two main categories:</p>
+       <div class="grid lg:grid-cols-2 gap-6 mb-6"><!-- General Controls -->
+        <div class="bg-gradient-to-br from-blue-900/30 to-blue-800/20 rounded-xl p-5 border border-blue-500/30">
+         <h3 class="heading text-lg font-semibold text-blue-400 mb-4 flex items-center gap-2"><span>🌐</span> General Controls (ITGCs)</h3>
+         <p class="text-sm text-slate-400 mb-4">Apply across all applications and IT infrastructure</p>
+         <div class="space-y-3">
+          <div class="bg-slate-800/50 rounded-lg p-3">
+           <h4 class="font-medium text-slate-200 text-sm">Access Controls</h4>
+           <p class="text-xs text-slate-400">User authentication, authorization levels, password policies</p>
+          </div>
+          <div class="bg-slate-800/50 rounded-lg p-3">
+           <h4 class="font-medium text-slate-200 text-sm">Change Management</h4>
+           <p class="text-xs text-slate-400">System updates, testing procedures, approval workflows</p>
+          </div>
+          <div class="bg-slate-800/50 rounded-lg p-3">
+           <h4 class="font-medium text-slate-200 text-sm">Operations Controls</h4>
+           <p class="text-xs text-slate-400">Backup procedures, disaster recovery, job scheduling</p>
+          </div>
+          <div class="bg-slate-800/50 rounded-lg p-3">
+           <h4 class="font-medium text-slate-200 text-sm">Physical Security</h4>
+           <p class="text-xs text-slate-400">Data center access, environmental controls</p>
+          </div>
+         </div>
+        </div><!-- Application Controls -->
+        <div class="bg-gradient-to-br from-emerald-900/30 to-emerald-800/20 rounded-xl p-5 border border-emerald-500/30">
+         <h3 class="heading text-lg font-semibold text-emerald-400 mb-4 flex items-center gap-2"><span>⚙️</span> Application Controls</h3>
+         <p class="text-sm text-slate-400 mb-4">Specific to individual applications/processes</p>
+         <div class="space-y-3">
+          <div class="bg-slate-800/50 rounded-lg p-3">
+           <h4 class="font-medium text-slate-200 text-sm">Input Controls</h4>
+           <p class="text-xs text-slate-400">Data validation, format checks, completeness verification</p>
+          </div>
+          <div class="bg-slate-800/50 rounded-lg p-3">
+           <h4 class="font-medium text-slate-200 text-sm">Processing Controls</h4>
+           <p class="text-xs text-slate-400">Batch totals, run-to-run totals, reasonableness tests</p>
+          </div>
+          <div class="bg-slate-800/50 rounded-lg p-3">
+           <h4 class="font-medium text-slate-200 text-sm">Output Controls</h4>
+           <p class="text-xs text-slate-400">Report distribution, reconciliation, review procedures</p>
+          </div>
+          <div class="bg-slate-800/50 rounded-lg p-3">
+           <h4 class="font-medium text-slate-200 text-sm">Audit Trails</h4>
+           <p class="text-xs text-slate-400">Transaction logging, user activity tracking</p>
+          </div>
+         </div>
+        </div>
+       </div>
+       <div class="bg-slate-700/30 rounded-xl p-5 mb-6">
+        <h4 class="font-semibold text-white mb-3">🔑 Key IT Control Concepts</h4>
+        <div class="grid md:grid-cols-3 gap-4 text-sm">
+         <div class="text-center p-3 bg-slate-800/50 rounded-lg">
+          <p class="text-cyan-400 font-medium">Segregation of Duties</p>
+          <p class="text-xs text-slate-400 mt-1">No single person controls all aspects of a transaction</p>
+         </div>
+         <div class="text-center p-3 bg-slate-800/50 rounded-lg">
+          <p class="text-cyan-400 font-medium">Least Privilege</p>
+          <p class="text-xs text-slate-400 mt-1">Users get minimum access needed for their role</p>
+         </div>
+         <div class="text-center p-3 bg-slate-800/50 rounded-lg">
+          <p class="text-cyan-400 font-medium">Defense in Depth</p>
+          <p class="text-xs text-slate-400 mt-1">Multiple layers of security controls</p>
+         </div>
+        </div>
+       </div>
+       <div class="flex justify-between"><button onclick="showSection('risk')" class="text-slate-400 hover:text-white flex items-center gap-2 transition-colors">
+         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+         </svg> Previous </button> <button onclick="showSection('fraud')" class="bg-blue-600 hover:bg-blue-700 text-white font-medium px-5 py-2 rounded-lg transition-all flex items-center gap-2"> Next: Fraud Prevention 
+         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+         </svg></button>
+       </div>
+      </div>
+     </section><!-- Fraud Prevention Section -->
+     <section id="section-fraud" class="content-section hidden">
+      <div class="bg-slate-800/50 rounded-2xl p-6 lg:p-8 card-glow border border-slate-700/50">
+       <div class="flex items-center gap-3 mb-6"><span class="text-3xl">🔒</span>
+        <h2 class="heading text-2xl font-bold text-white">Fraud Prevention</h2>
+       </div>
+       <div class="bg-red-900/20 border border-red-500/30 rounded-xl p-5 mb-6">
+        <h3 class="font-semibold text-red-400 mb-2">The Fraud Triangle</h3>
+        <p class="text-sm text-slate-300 mb-4">Developed by criminologist Donald Cressey, the fraud triangle explains why people commit fraud:</p>
+        <div class="grid md:grid-cols-3 gap-4">
+         <div class="text-center">
+          <div class="w-16 h-16 bg-red-500/20 rounded-full flex items-center justify-center mx-auto mb-2"><span class="text-2xl">💰</span>
+          </div>
+          <p class="font-medium text-red-300">Pressure</p>
+          <p class="text-xs text-slate-400">Financial need or incentive</p>
+         </div>
+         <div class="text-center">
+          <div class="w-16 h-16 bg-red-500/20 rounded-full flex items-center justify-center mx-auto mb-2"><span class="text-2xl">🚪</span>
+          </div>
+          <p class="font-medium text-red-300">Opportunity</p>
+          <p class="text-xs text-slate-400">Weak controls allow fraud</p>
+         </div>
+         <div class="text-center">
+          <div class="w-16 h-16 bg-red-500/20 rounded-full flex items-center justify-center mx-auto mb-2"><span class="text-2xl">🧠</span>
+          </div>
+          <p class="font-medium text-red-300">Rationalization</p>
+          <p class="text-xs text-slate-400">Justifying the behavior</p>
+         </div>
+        </div>
+       </div>
+       <h3 class="heading text-lg font-semibold text-white mb-4">Types of AIS Fraud</h3>
+       <div class="grid md:grid-cols-2 gap-4 mb-6">
+        <div class="bg-slate-700/40 rounded-lg p-4">
+         <h4 class="font-medium text-amber-400 mb-2">💳 Asset Misappropriation</h4>
+         <ul class="text-sm text-slate-300 space-y-1">
+          <li>• Skimming cash receipts</li>
+          <li>• Ghost employees</li>
+          <li>• Inventory theft</li>
+          <li>• Expense reimbursement fraud</li>
+         </ul>
+        </div>
+        <div class="bg-slate-700/40 rounded-lg p-4">
+         <h4 class="font-medium text-purple-400 mb-2">📑 Financial Statement Fraud</h4>
+         <ul class="text-sm text-slate-300 space-y-1">
+          <li>• Revenue overstatement</li>
+          <li>• Expense understatement</li>
+          <li>• Improper asset valuation</li>
+          <li>• Concealed liabilities</li>
+         </ul>
+        </div>
+       </div>
+       <h3 class="heading text-lg font-semibold text-white mb-4">Prevention Strategies</h3>
+       <div class="space-y-3 mb-6">
+        <div class="flex items-start gap-3 bg-slate-700/30 rounded-lg p-4"><span class="text-green-400 text-xl">✓</span>
+         <div>
+          <p class="font-medium text-slate-200">Segregation of Duties</p>
+          <p class="text-sm text-slate-400">Separate authorization, custody, and recording functions</p>
+         </div>
+        </div>
+        <div class="flex items-start gap-3 bg-slate-700/30 rounded-lg p-4"><span class="text-green-400 text-xl">✓</span>
+         <div>
+          <p class="font-medium text-slate-200">Regular Reconciliations</p>
+          <p class="text-sm text-slate-400">Independent verification of records against physical assets</p>
+         </div>
+        </div>
+        <div class="flex items-start gap-3 bg-slate-700/30 rounded-lg p-4"><span class="text-green-400 text-xl">✓</span>
+         <div>
+          <p class="font-medium text-slate-200">Access Controls &amp; Audit Trails</p>
+          <p class="text-sm text-slate-400">Limit system access and track all transactions</p>
+         </div>
+        </div>
+        <div class="flex items-start gap-3 bg-slate-700/30 rounded-lg p-4"><span class="text-green-400 text-xl">✓</span>
+         <div>
+          <p class="font-medium text-slate-200">Ethics &amp; Training Programs</p>
+          <p class="text-sm text-slate-400">Foster ethical culture and awareness of fraud indicators</p>
+         </div>
+        </div>
+       </div>
+       <div class="flex justify-between"><button onclick="showSection('it-controls')" class="text-slate-400 hover:text-white flex items-center gap-2 transition-colors">
+         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+         </svg> Previous </button> <button onclick="showSection('case-study')" class="bg-blue-600 hover:bg-blue-700 text-white font-medium px-5 py-2 rounded-lg transition-all flex items-center gap-2"> Next: Case Study 
+         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+         </svg></button>
+       </div>
+      </div>
+     </section><!-- Case Study Section -->
+     <section id="section-case-study" class="content-section hidden">
+      <div class="bg-slate-800/50 rounded-2xl p-6 lg:p-8 card-glow border border-slate-700/50">
+       <div class="flex items-center gap-3 mb-6"><span class="text-3xl">📚</span>
+        <h2 class="heading text-2xl font-bold text-white">Individual Case Study Activity</h2>
+       </div>
+       <div class="bg-gradient-to-r from-indigo-900/40 to-purple-900/40 rounded-xl p-6 mb-6 border border-indigo-500/30">
+        <h3 class="heading text-xl font-semibold text-indigo-300 mb-3">Case: TechFlow Solutions Data Breach</h3>
+        <div class="prose text-slate-300 text-sm leading-relaxed space-y-3">
+         <p><strong class="text-white">Background:</strong> TechFlow Solutions is a mid-sized software company with 200 employees. They use an integrated AIS for all financial operations including accounts payable, accounts receivable, payroll, and general ledger.</p>
+         <p><strong class="text-white">The Incident:</strong> In March 2024, the company discovered that over ₱15 million had been siphoned from company accounts over 18 months. The investigation revealed the following:</p>
+         <ul class="list-disc list-inside space-y-2 ml-2">
+          <li>A senior accountant, Maria Santos, had been creating fictitious vendor accounts and processing payments to herself</li>
+          <li>Maria had access to create vendors, approve invoices, AND process payments</li>
+          <li>The company had no systematic review of new vendor additions</li>
+          <li>Password for the AIS admin account was shared among three staff members</li>
+          <li>Audit logs were enabled but never reviewed</li>
+          <li>Bank reconciliations were performed by the same person who processed payments</li>
+          <li>The company had recently laid off staff, and Maria had complained about being underpaid</li>
+         </ul>
+         <p><strong class="text-white">Discovery:</strong> The fraud was only discovered when Maria went on extended sick leave and her temporary replacement noticed unusual vendor payment patterns.</p>
+        </div>
+       </div><!-- Activity Questions -->
+       <div class="space-y-6">
+        <h3 class="heading text-lg font-semibold text-white">📝 Analysis Questions</h3>
+        <p class="text-slate-400 text-sm">Answer each question based on your understanding of internal controls and the case details. Type your responses in the text areas below.</p><!-- Question 1 -->
+        <div class="case-card bg-slate-700/30 rounded-xl p-5">
+         <div class="flex items-start gap-3 mb-3"><span class="bg-blue-500 text-white text-sm font-bold w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0">1</span>
+          <div>
+           <h4 class="font-semibold text-white">Risk Identification</h4>
+           <p class="text-sm text-slate-400 mt-1">Identify at least FOUR specific internal control weaknesses that allowed this fraud to occur. For each weakness, explain which COSO component it relates to.</p>
+          </div>
+         </div><textarea class="textarea-case w-full h-32 rounded-lg p-3 text-sm text-slate-200 resize-none" placeholder="Type your answer here..."></textarea>
+        </div><!-- Question 2 -->
+        <div class="case-card bg-slate-700/30 rounded-xl p-5">
+         <div class="flex items-start gap-3 mb-3"><span class="bg-emerald-500 text-white text-sm font-bold w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0">2</span>
+          <div>
+           <h4 class="font-semibold text-white">Fraud Triangle Analysis</h4>
+           <p class="text-sm text-slate-400 mt-1">Apply the Fraud Triangle to Maria's case. Identify evidence of each element (Pressure, Opportunity, Rationalization) from the case details.</p>
+          </div>
+         </div><textarea class="textarea-case w-full h-32 rounded-lg p-3 text-sm text-slate-200 resize-none" placeholder="Type your answer here..."></textarea>
+        </div><!-- Question 3 -->
+        <div class="case-card bg-slate-700/30 rounded-xl p-5">
+         <div class="flex items-start gap-3 mb-3"><span class="bg-amber-500 text-white text-sm font-bold w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0">3</span>
+          <div>
+           <h4 class="font-semibold text-white">IT Control Recommendations</h4>
+           <p class="text-sm text-slate-400 mt-1">Recommend at least FIVE specific IT controls (both general and application controls) that should be implemented to prevent similar fraud in the future. Be specific about how each control would work.</p>
+          </div>
+         </div><textarea class="textarea-case w-full h-32 rounded-lg p-3 text-sm text-slate-200 resize-none" placeholder="Type your answer here..."></textarea>
+        </div><!-- Question 4 -->
+        <div class="case-card bg-slate-700/30 rounded-xl p-5">
+         <div class="flex items-start gap-3 mb-3"><span class="bg-purple-500 text-white text-sm font-bold w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0">4</span>
+          <div>
+           <h4 class="font-semibold text-white">Segregation of Duties Redesign</h4>
+           <p class="text-sm text-slate-400 mt-1">Design a new workflow for the accounts payable process that properly segregates duties. Specify which roles should handle: (a) vendor creation, (b) invoice approval, (c) payment processing, and (d) bank reconciliation.</p>
+          </div>
+         </div><textarea class="textarea-case w-full h-32 rounded-lg p-3 text-sm text-slate-200 resize-none" placeholder="Type your answer here..."></textarea>
+        </div><!-- Question 5 -->
+        <div class="case-card bg-slate-700/30 rounded-xl p-5">
+         <div class="flex items-start gap-3 mb-3"><span class="bg-red-500 text-white text-sm font-bold w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0">5</span>
+          <div>
+           <h4 class="font-semibold text-white">Monitoring Program</h4>
+           <p class="text-sm text-slate-400 mt-1">Develop a monitoring program that would help detect similar fraud in the future. Include: what reports should be reviewed, how often, by whom, and what red flags to look for.</p>
+          </div>
+         </div><textarea class="textarea-case w-full h-32 rounded-lg p-3 text-sm text-slate-200 resize-none" placeholder="Type your answer here..."></textarea>
+        </div>
+       </div>
+       <div class="bg-slate-700/30 rounded-xl p-5 mt-6">
+        <h4 class="font-semibold text-cyan-400 mb-2 flex items-center gap-2"><span>📋</span> Submission Guidelines</h4>
+        <ul class="text-sm text-slate-300 space-y-1">
+         <li>• Provide detailed, well-reasoned responses for each question</li>
+         <li>• Reference concepts from the lesson materials</li>
+         <li>• Use specific examples and be practical in your recommendations</li>
+         <li>• Consider cost-effectiveness of proposed controls</li>
+        </ul>
+       </div>
+       <div class="flex justify-between mt-6"><button onclick="showSection('fraud')" class="text-slate-400 hover:text-white flex items-center gap-2 transition-colors">
+         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+         </svg> Previous </button> <button onclick="showSection('quiz')" class="bg-blue-600 hover:bg-blue-700 text-white font-medium px-5 py-2 rounded-lg transition-all flex items-center gap-2"> Take Quiz 
+         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+         </svg></button>
+       </div>
+      </div>
+     </section><!-- Quiz Section -->
+     <section id="section-quiz" class="content-section hidden">
+      <div class="bg-slate-800/50 rounded-2xl p-6 lg:p-8 card-glow border border-slate-700/50">
+       <div class="flex items-center gap-3 mb-6"><span class="text-3xl">✅</span>
+        <h2 class="heading text-2xl font-bold text-white">Knowledge Check Quiz</h2>
+       </div>
+       <div id="quiz-container"><!-- Quiz questions will be rendered here -->
+       </div>
+       <div id="quiz-results" class="hidden">
+        <div class="text-center py-8">
+         <div class="w-24 h-24 mx-auto mb-4 rounded-full bg-gradient-to-r from-blue-500 to-cyan-500 flex items-center justify-center"><span id="score-display" class="text-3xl font-bold text-white">0/5</span>
+         </div>
+         <h3 class="heading text-xl font-semibold text-white mb-2">Quiz Complete!</h3>
+         <p id="score-message" class="text-slate-400 mb-6"></p><button onclick="resetQuiz()" class="bg-blue-600 hover:bg-blue-700 text-white font-medium px-6 py-3 rounded-xl transition-all"> Retake Quiz </button>
+        </div>
+       </div>
+       <div class="flex justify-between mt-6"><button onclick="showSection('case-study')" class="text-slate-400 hover:text-white flex items-center gap-2 transition-colors">
+         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+         </svg> Back to Case Study </button>
+       </div>
+      </div>
+     </section>
+    </div>
+   </main>
+  </div>
+  <script>
+    // Default configuration
+    const defaultConfig = {
+      lesson_title: 'AIS Internal Controls & Security',
+      week_number: 'Week 6',
+      background_color: '#0f172a',
+      surface_color: '#1e293b',
+      text_color: '#e2e8f0',
+      primary_color: '#3b82f6',
+      secondary_color: '#06b6d4',
+      font_family: 'Inter',
+      font_size: 16
+    };
+    
+    let config = { ...defaultConfig };
+    const visitedSections = new Set(['overview']);
+    const totalSections = 7;
+    
+    // Quiz data
+    const quizQuestions = [
+      {
+        question: "Which COSO component establishes the 'tone at the top' for an organization?",
+        options: ["Risk Assessment", "Control Environment", "Monitoring Activities", "Control Activities"],
+        correct: 1,
+        explanation: "The Control Environment is the foundation that sets the tone at the top, including integrity, ethical values, and management's philosophy."
+      },
+      {
+        question: "What are the three elements of the Fraud Triangle?",
+        options: [
+          "Motive, Means, Method",
+          "Pressure, Opportunity, Rationalization",
+          "Intent, Action, Concealment",
+          "Risk, Control, Audit"
+        ],
+        correct: 1,
+        explanation: "The Fraud Triangle consists of Pressure (incentive), Opportunity (weak controls), and Rationalization (justification)."
+      },
+      {
+        question: "Which type of IT control ensures data entered into the system is accurate and complete?",
+        options: ["Output Controls", "General Controls", "Input Controls", "Processing Controls"],
+        correct: 2,
+        explanation: "Input Controls validate data entry through format checks, completeness verification, and data validation rules."
+      },
+      {
+        question: "What principle requires that no single person controls all aspects of a critical transaction?",
+        options: ["Least Privilege", "Defense in Depth", "Segregation of Duties", "Dual Control"],
+        correct: 2,
+        explanation: "Segregation of Duties ensures that authorization, custody, and recording functions are performed by different individuals."
+      },
+      {
+        question: "ITGCs (IT General Controls) apply to:",
+        options: [
+          "Only the accounting application",
+          "Only financial transactions",
+          "All applications and IT infrastructure",
+          "Only external reporting systems"
+        ],
+        correct: 2,
+        explanation: "IT General Controls apply across the entire IT environment, affecting all applications and systems."
+      }
+    ];
+    
+    let currentQuizState = {
+      answers: {},
+      submitted: false
+    };
+    
+    // Section navigation
+    function showSection(sectionId) {
+      document.querySelectorAll('.content-section').forEach(section => {
+        section.classList.add('hidden');
+      });
+      
+      const targetSection = document.getElementById(`section-${sectionId}`);
+      if (targetSection) {
+        targetSection.classList.remove('hidden');
+      }
+      
+      document.querySelectorAll('.nav-item').forEach(item => {
+        item.classList.remove('active');
+        if (item.dataset.section === sectionId) {
+          item.classList.add('active');
+        }
+      });
+      
+      visitedSections.add(sectionId);
+      updateProgress();
+      
+      if (sectionId === 'quiz' && !currentQuizState.submitted) {
+        renderQuiz();
+      }
+    }
+    
+    // Progress tracking
+    function updateProgress() {
+      const progress = Math.round((visitedSections.size / totalSections) * 100);
+      document.getElementById('progress-bar').style.width = `${progress}%`;
+      document.getElementById('progress-text').textContent = `${progress}%`;
+    }
+    
+    // Quiz functions
+    function renderQuiz() {
+      const container = document.getElementById('quiz-container');
+      container.innerHTML = quizQuestions.map((q, index) => `
+        <div class="mb-6 bg-slate-700/30 rounded-xl p-5">
+          <p class="font-medium text-white mb-4">
+            <span class="text-blue-400">${index + 1}.</span> ${q.question}
+          </p>
+          <div class="space-y-2">
+            ${q.options.map((option, optIndex) => `
+              <button 
+                onclick="selectAnswer(${index}, ${optIndex})"
+                class="quiz-option w-full text-left p-3 rounded-lg border border-slate-600 text-sm text-slate-300 hover:border-blue-500 ${currentQuizState.answers[index] === optIndex ? 'selected' : ''}"
+                data-question="${index}"
+                data-option="${optIndex}"
+              >
+                <span class="font-medium text-slate-400 mr-2">${String.fromCharCode(65 + optIndex)}.</span>
+                ${option}
+              </button>
+            `).join('')}
+          </div>
+          <div id="explanation-${index}" class="hidden mt-3 p-3 bg-slate-800/50 rounded-lg text-sm text-slate-300">
+            ${q.explanation}
+          </div>
+        </div>
+      `).join('');
+      
+      container.innerHTML += `
+        <button 
+          onclick="submitQuiz()"
+          class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 rounded-xl transition-all"
+        >
+          Submit Answers
+        </button>
+      `;
+      
+      document.getElementById('quiz-results').classList.add('hidden');
+      container.classList.remove('hidden');
+    }
+    
+    function selectAnswer(questionIndex, optionIndex) {
+      if (currentQuizState.submitted) return;
+      
+      currentQuizState.answers[questionIndex] = optionIndex;
+      
+      document.querySelectorAll(`[data-question="${questionIndex}"]`).forEach(btn => {
+        btn.classList.remove('selected');
+      });
+      document.querySelector(`[data-question="${questionIndex}"][data-option="${optionIndex}"]`).classList.add('selected');
+    }
+    
+    function submitQuiz() {
+      if (Object.keys(currentQuizState.answers).length < quizQuestions.length) {
+        const unanswered = document.createElement('div');
+        unanswered.className = 'bg-amber-900/30 border border-amber-500/50 text-amber-200 p-3 rounded-lg text-sm mb-4';
+        unanswered.textContent = 'Please answer all questions before submitting.';
+        unanswered.id = 'unanswered-warning';
+        
+        const existing = document.getElementById('unanswered-warning');
+        if (existing) existing.remove();
+        
+        document.getElementById('quiz-container').prepend(unanswered);
+        setTimeout(() => unanswered.remove(), 3000);
+        return;
+      }
+      
+      currentQuizState.submitted = true;
+      let score = 0;
+      
+      quizQuestions.forEach((q, index) => {
+        const userAnswer = currentQuizState.answers[index];
+        const buttons = document.querySelectorAll(`[data-question="${index}"]`);
+        
+        buttons.forEach((btn, optIndex) => {
+          btn.classList.remove('selected');
+          if (optIndex === q.correct) {
+            btn.classList.add('correct');
+          } else if (optIndex === userAnswer && userAnswer !== q.correct) {
+            btn.classList.add('incorrect');
+          }
+        });
+        
+        if (userAnswer === q.correct) score++;
+        
+        document.getElementById(`explanation-${index}`).classList.remove('hidden');
+      });
+      
+      document.getElementById('score-display').textContent = `${score}/${quizQuestions.length}`;
+      
+      let message = '';
+      if (score === quizQuestions.length) {
+        message = 'Excellent! Perfect score! You have mastered AIS internal controls.';
+      } else if (score >= 4) {
+        message = 'Great job! You have a solid understanding of the concepts.';
+      } else if (score >= 3) {
+        message = 'Good effort! Review the explanations to strengthen your knowledge.';
+      } else {
+        message = 'Keep learning! Review the lesson materials and try again.';
+      }
+      document.getElementById('score-message').textContent = message;
+      
+      document.querySelector('#quiz-container button:last-child').classList.add('hidden');
+      document.getElementById('quiz-results').classList.remove('hidden');
+    }
+    
+    function resetQuiz() {
+      currentQuizState = { answers: {}, submitted: false };
+      renderQuiz();
+    }
+    
+    // Element SDK Integration
+    async function onConfigChange(newConfig) {
+      const title = newConfig.lesson_title || defaultConfig.lesson_title;
+      const week = newConfig.week_number || defaultConfig.week_number;
+      
+      document.getElementById('main-title').textContent = title.length > 15 ? title.substring(0, 15) + '...' : title;
+      document.getElementById('week-badge').textContent = week;
+    }
+    
+    function mapToCapabilities(cfg) {
+      return {
+        recolorables: [
+          {
+            get: () => cfg.background_color || defaultConfig.background_color,
+            set: (v) => { cfg.background_color = v; window.elementSdk.setConfig({ background_color: v }); }
+          },
+          {
+            get: () => cfg.surface_color || defaultConfig.surface_color,
+            set: (v) => { cfg.surface_color = v; window.elementSdk.setConfig({ surface_color: v }); }
+          },
+          {
+            get: () => cfg.text_color || defaultConfig.text_color,
+            set: (v) => { cfg.text_color = v; window.elementSdk.setConfig({ text_color: v }); }
+          },
+          {
+            get: () => cfg.primary_color || defaultConfig.primary_color,
+            set: (v) => { cfg.primary_color = v; window.elementSdk.setConfig({ primary_color: v }); }
+          },
+          {
+            get: () => cfg.secondary_color || defaultConfig.secondary_color,
+            set: (v) => { cfg.secondary_color = v; window.elementSdk.setConfig({ secondary_color: v }); }
+          }
+        ],
+        borderables: [],
+        fontEditable: {
+          get: () => cfg.font_family || defaultConfig.font_family,
+          set: (v) => { cfg.font_family = v; window.elementSdk.setConfig({ font_family: v }); }
+        },
+        fontSizeable: {
+          get: () => cfg.font_size || defaultConfig.font_size,
+          set: (v) => { cfg.font_size = v; window.elementSdk.setConfig({ font_size: v }); }
+        }
+      };
+    }
+    
+    function mapToEditPanelValues(cfg) {
+      return new Map([
+        ['lesson_title', cfg.lesson_title || defaultConfig.lesson_title],
+        ['week_number', cfg.week_number || defaultConfig.week_number]
+      ]);
+    }
+    
+    // Initialize
+    if (window.elementSdk) {
+      window.elementSdk.init({
+        defaultConfig,
+        onConfigChange,
+        mapToCapabilities,
+        mapToEditPanelValues
+      });
+    }
+    
+    updateProgress();
+  </script>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9da080a163b00cd6',t:'MTc3MzEyNjY1Ni4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
